@@ -1,2 +1,103 @@
-# Cake.Paket.Example
-Example cake build using paket
+# Example Cake Build Using Paket
+
+[![Packagist](https://img.shields.io/packagist/l/doctrine/orm.svg?maxAge=2592000)](https://github.com/larzw/Cake.Paket.Example/blob/master/LICENSE)
+
+This repository is a fork of the [minimal cake project](https://github.com/cake-build/example). Instead of using [NuGet](https://www.nuget.org/) for dependency management we use [paket](https://fsprojects.github.io/Paket/). Additionally, for convenience, we include an example build using mono on [Travis CI](https://travis-ci.org/). 
+
+## Build Status on Master Branch
+
+|Build server|Platform|Build status|
+|:--:|:--:|:--:|
+|AppVeyor|Windows|[![Build status](https://ci.appveyor.com/api/projects/status/uipwpnm6vqn0lbte/branch/master?svg=true)](https://ci.appveyor.com/project/larzw/cake-paket-example-9djsj/branch/master)|
+|Travis CI|Linux, OS X|[![Build Status](https://travis-ci.org/larzw/Cake.Paket.Example.svg?branch=master)](https://travis-ci.org/larzw/Cake.Paket.Example)
+
+
+## Quick Start
+
+- Clone the repository
+- Run the appropriate build script
+  - On Windows use PowerShell and run `.\build.ps1`. If it errors out due to an execution policy, take a look at [changing the execution policy](https://technet.microsoft.com/en-us/library/ee176961.aspx).
+  - On Linux or OS X use the terminal and run `./build.sh`. You may need to change the permissions `chmod +x build.sh`.
+
+## Paket
+
+Using paket with cake is fairly simple as long as you
+
+1. Don't forget to include cake in your paket.dependencies file.
+2. Don't include aliases in your build.cake file. They go in your paket.dependencies file.
+3. Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository.
+
+### Don't forget to include cake in your paket.dependencies file
+
+I think this is pretty obvious, but easy to forget.
+
+*paket.dependencies*
+```
+source https://nuget.org/api/v2
+
+nuget Cake
+```
+
+### Don't include aliases in your build.cake file. They go in your paket.dependencies file.
+
+This is a natural step if you're familiar with paket. As an example, we'll start with a build.cake file that does **not** use paket.
+
+*build.cake*
+```csharp
+#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0    
+
+...
+
+Task("Run-Unit-Tests").IsDependentOn("Build").Does(() =>
+{
+	NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings { NoResults = true });
+});
+```
+  
+The thing at the top ``#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0`` is called an [alias](http://cakebuild.net/docs/fundamentals/aliases). It downloads the tool *NUnit.ConsoleRunner (version 3.4.0)* from NuGet so that NUnit can use it to run the unit tests. However, if we use paket we don't need to include the alias at the top. The alias just tells us what to include in our paket.dependencies file.
+  
+*paket.dependencies*
+```
+source https://nuget.org/api/v2
+
+nuget Cake
+nuget NUnit
+nuget NUnit.ConsoleRunner = 3.4.0
+```
+
+*build.cake*
+```csharp  
+...
+
+Task("Run-Unit-Tests").IsDependentOn("Build").Does(() =>
+{
+	NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings { NoResults = true });
+});
+```
+
+where we removed the alias from the *build.cake* script
+
+### Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository.
+
+The cake team states [[Ref]](http://cakebuild.net/docs/tutorials/extending-the-bootstrapper), 
+
+> "The Cake Bootstrapper that you can get directly from cakebuild.net is intended as a starting point for what can be done. It is the developer's discretion to extend the bootstrapper to solve for your own requirements."
+
+The above quote provides peace of mind for extending the scripts. In fact, the scripts simply wrap `Cake.exe`. Essentially they,
+
+1. Downloads nuget.exe (and possibly runs NuGet restore)
+2. Uses nuget.exe to download Cake.exe 
+3. Runs Cake.exe, for example `build.ps1 -Script MyBuildScript.cake -Target Default` is the same as `Cake.exe MyBuildScript.cake -Target Default`
+	
+For steps 1-2 the scripts in the repository use paket, while step 3 is the same. In addition to the command line arguments the old scripts allow, you can pass in the optional argument `-Paket` (on PowerShell) or `--paket` (on bash). This argument is used to specify the relative path to the *.paket* directory. If you don't specify anything, it looks in the same directory as the bootstrapper scripts.
+
+### Configuration Values
+This section is for users who what a deeper understanding of how the modified bootstrapper scripts work.
+
+If you look in the boostrapper scripts you'll see the environment variables: *CAKE_PATHS_TOOLS* and *CAKE_PATHS_ADDINS*. These specify the paths to the tools and addins directory so cake can locate the dependencies. There are a few alternatives to using environment variables
+
+1. Specify the ToolPath in the build.cake file. As an example see [NUnit3Settings](http://cakebuild.net/api/cake.common.tools.nunit/7bd0c6da)
+2. Use a cake.config file
+3. Pass the path to Cake.exe
+
+See the [default configuration values](http://cakebuild.net/docs/fundamentals/default-configuration-values) for more information on numbers 2-3.

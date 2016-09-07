@@ -1,0 +1,5 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+    Cake (0.15.2)
+    NUnit (3.4.1)
+    NUnit.ConsoleRunner (3.4)
