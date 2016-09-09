@@ -101,3 +101,24 @@ If you look in the boostrapper scripts you'll see the environment variables: *CA
 3. Pass the path to Cake.exe
 
 See the [default configuration values](http://cakebuild.net/docs/fundamentals/default-configuration-values) for more information on numbers 2-3.
+
+## Committing Binary Files
+
+It's common practice not to commit binary files. However, this example commits paket.bootstrapper.exe as per pakets [getting started guild](https://fsprojects.github.io/Paket/getting-started.html). The paket team states
+
+> "Commit .paket/paket.bootstrapper.exe into your repo and add .paket/paket.exe to your .gitignore file."
+
+This is also what the F# foundation does for [ProjectScaffold](http://fsprojects.github.io/ProjectScaffold/), which is used to scaffold a prototypical .NET solution.
+
+However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can edit the cake bootstrapper scripts so they download paket.bootstrapper.exe from GitHub. In PowerShell it would look something like,
+
+```powershell
+# If paket.bootstrapper.exe exits then run it, otherwise download it from GitHub
+$PAKET_BOOTSTRAPPER_EXE = Join-Path $PaketFullPath "paket.bootstrapper.exe"
+$URL = "https://github.com/fsprojects/Paket/releases/download/3.19.3/paket.bootstrapper.exe" # Set the correct URL and/or create a new command line argument for the script and pass it in.
+(New-Object System.Net.WebClient).DownloadFile($URL, $PAKET_BOOTSTRAPPER_EXE)
+if (!(Test-Path $PAKET_BOOTSTRAPPER_EXE)) {
+	Throw "Could not find paket.bootstrapper.exe at $PAKET_BOOTSTRAPPER_EXE"
+}
+Write-Verbose -Message "Found paket.bootstrapper.exe in PATH at $PAKET_BOOTSTRAPPER_EXE"
+```
