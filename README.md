@@ -108,17 +108,8 @@ It's common practice not to commit binary files. However, this example commits p
 
 > "Commit .paket/paket.bootstrapper.exe into your repo and add .paket/paket.exe to your .gitignore file."
 
-This is also what the F# foundation does for [ProjectScaffold](http://fsprojects.github.io/ProjectScaffold/), which is used to scaffold a prototypical .NET solution.
+This is also what the F# foundation does for [ProjectScaffold](http://fsprojects.github.io/ProjectScaffold/), which is used to scaffold a prototypical .NET solution. 
 
-However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can edit the cake bootstrapper scripts so they download paket.bootstrapper.exe from GitHub. In PowerShell it would look something like,
+However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can modify the cake bootstrapper scripts so they download it.
 
-```powershell
-# If paket.bootstrapper.exe exits then run it, otherwise download it from GitHub
-$PAKET_BOOTSTRAPPER_EXE = Join-Path $PaketFullPath "paket.bootstrapper.exe"
-$URL = "https://github.com/fsprojects/Paket/releases/download/3.19.3/paket.bootstrapper.exe" # Set the correct URL and/or create a new command line argument for the script and pass it in.
-(New-Object System.Net.WebClient).DownloadFile($URL, $PAKET_BOOTSTRAPPER_EXE)
-if (!(Test-Path $PAKET_BOOTSTRAPPER_EXE)) {
-	Throw "Could not find paket.bootstrapper.exe at $PAKET_BOOTSTRAPPER_EXE"
-}
-Write-Verbose -Message "Found paket.bootstrapper.exe in PATH at $PAKET_BOOTSTRAPPER_EXE"
-```
+My personal preference is to commit the bootstrapper because it's small and rarely changed. Furthermore, it makes collaborating easier. For example, if someone downloads your code they can run `.paket/paket.bootstrapper.exe` and then `.paket/paket.exe restore` to get all the dependencies. If the bootstrapper was not committed they would have to download it or run the build scripts.
