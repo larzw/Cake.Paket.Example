@@ -20,8 +20,6 @@ and execute your Cake build script with the parameters you provide.
 The build script to execute.
 .PARAMETER Paket
 The relative path to the .paket directory.
-.PARAMETER PaketBootStrapperURL
-The URL to download paket.bootstrapper.exe.
 .PARAMETER Target
 The build script target to run.
 .PARAMETER Configuration
@@ -47,7 +45,6 @@ Param(
     [string]$Script = "build.cake",
     [ValidatePattern('.paket$')]
     [string]$Paket = ".\.paket",
-    [string]$PaketBootStrapperURL,
     [string]$Target = "Default",
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Release",
@@ -86,10 +83,11 @@ if($WhatIf.IsPresent) {
 Write-Verbose -Message "Using paket for dependency management..."
 
 # Make sure the .paket directory exits
-if (!(Test-Path $Paket)) {   
-   New-Item -Path $Paket -Type directory | out-null
-}
 $PaketFullPath = Resolve-Path $Paket
+if(!(Test-Path $PaketFullPath)) {
+    Throw "Could not find .paket directory at $PaketFullPath"
+}
+Write-Verbose -Message "Found .paket in PATH at $PaketFullPath"
 
 # Set the path to the dependencies
 $PaketRoot = Split-Path (Resolve-Path $Paket) -Parent
@@ -103,13 +101,8 @@ Write-Verbose -Message "Set CAKE_PATHS_ADDINS environment variable to $ENV:CAKE_
 # If paket.exe does not exits then download it using paket.bootstrapper.exe
 $PAKET_EXE = Join-Path $PaketFullPath "paket.exe"
 if (!(Test-Path $PAKET_EXE)) {   
-    # If paket.bootstrapper.exe exits then run it. Otherwise, if the flag PaketBootStrapperURL exits then download it.
+    # If paket.bootstrapper.exe exits then run it.
     $PAKET_BOOTSTRAPPER_EXE = Join-Path $PaketFullPath "paket.bootstrapper.exe"
-    if($PaketBootStrapperURL) {
-         Write-Verbose -Message "Downloading paket.bootstrapper.exe..."
-        (New-Object System.Net.WebClient).DownloadFile($PaketBootStrapperURL, $PAKET_BOOTSTRAPPER_EXE)
-    }
-
     if (!(Test-Path $PAKET_BOOTSTRAPPER_EXE)) {
         Throw "Could not find paket.bootstrapper.exe at $PAKET_BOOTSTRAPPER_EXE"
     }

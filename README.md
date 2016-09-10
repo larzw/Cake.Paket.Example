@@ -110,4 +110,15 @@ It's common practice not to commit binary files. However, this example commits p
 
 This is also what the F# foundation does for [ProjectScaffold](http://fsprojects.github.io/ProjectScaffold/), which is used to scaffold a prototypical .NET solution.
 
-However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can run the bootstrapper scripts with the argument `.\build.ps1 -PaketBootStrapperURL "Add URL Here"` and/or `./build.sh -b "Add URL Here"` so they download paket.bootstrapper.exe from the GitHub URL.
+However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can edit the cake bootstrapper scripts so they download paket.bootstrapper.exe from GitHub. In PowerShell it would look something like,
+
+```powershell
+# If paket.bootstrapper.exe exits then run it, otherwise download it from GitHub
+$PAKET_BOOTSTRAPPER_EXE = Join-Path $PaketFullPath "paket.bootstrapper.exe"
+$URL = "https://github.com/fsprojects/Paket/releases/download/3.19.3/paket.bootstrapper.exe" # Set the correct URL and/or create a new command line argument for the script and pass it in.
+(New-Object System.Net.WebClient).DownloadFile($URL, $PAKET_BOOTSTRAPPER_EXE)
+if (!(Test-Path $PAKET_BOOTSTRAPPER_EXE)) {
+	Throw "Could not find paket.bootstrapper.exe at $PAKET_BOOTSTRAPPER_EXE"
+}
+Write-Verbose -Message "Found paket.bootstrapper.exe in PATH at $PAKET_BOOTSTRAPPER_EXE"
+```

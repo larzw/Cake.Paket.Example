@@ -23,7 +23,6 @@ for i in "$@"; do
     case $1 in
         -s|--script) SCRIPT="$2"; shift ;;
 		-p|--paket) PAKET="$2"; shift ;;
-        -b|--paketbootstrapperurl) PAKETBOOTSTRAPPERURL="$2"; shift ;;
         -t|--target) TARGET="$2"; shift ;;
         -c|--configuration) CONFIGURATION="$2"; shift ;;
         -v|--verbosity) VERBOSITY="$2"; shift ;;
@@ -42,7 +41,8 @@ PAKET_DIR=$( cd "$( dirname "$PAKET" )" && pwd )
 # Make sure the .paket directory exits.
 PAKET_FULL_PATH=$PAKET_DIR/.paket
 if [ ! -d "$PAKET_FULL_PATH" ]; then
-	mkdir "$PAKET_FULL_PATH"
+    echo "Could not find .paket at '$PAKET_FULL_PATH'."
+    exit 1
 fi
 
 # Set the path to the dependencies.
@@ -50,21 +50,12 @@ TOOLS_DIR=$PAKET_DIR/packages
 export CAKE_PATHS_TOOLS=$TOOLS_DIR
 export CAKE_PATHS_ADDINS=$TOOLS_DIR
 
-# Create .paket directory if it does not exit
-if [ ! -d "$PAKET_FULL_PATH" ]; then
-  mkdir "$PAKET_FULL_PATH"
-fi
-
 # If paket.exe does not exits then download it using paket.bootstrapper.exe
 PAKET_EXE=$PAKET_FULL_PATH/paket.exe
 if [ ! -f "$PAKET_EXE" ]; then
-    # If paket.bootstrapper.exe exits then run it. Otherwise, if the flag paketbootstrapperurl exits then download it.
-    PAKET_BOOTSTRAPPER_EXE=$PAKET_FULL_PATH/paket.bootstrapper.exe
-    if [ -z "$paketbootstrapperurl" ]; then
-        echo "Downloading paket.bootstrapper.exe..."
-        curl -Lsfo "$PAKET_BOOTSTRAPPER_EXE" "$PAKETBOOTSTRAPPERURL"
-    fi
 
+    # If paket.bootstrapper.exe exits then run it.
+    PAKET_BOOTSTRAPPER_EXE=$PAKET_FULL_PATH/paket.bootstrapper.exe
     if [ ! -f "$PAKET_BOOTSTRAPPER_EXE" ]; then
         echo "Could not find paket.bootstrapper.exe at '$PAKET_BOOTSTRAPPER_EXE'."
         exit 1
