@@ -1,7 +1,5 @@
 # Example Cake Build Using Paket
 
-[![Packagist](https://img.shields.io/packagist/l/doctrine/orm.svg?maxAge=2592000)](https://github.com/larzw/Cake.Paket.Example/blob/master/LICENSE)
-
 This repository is a fork of the [minimal cake project](https://github.com/cake-build/example). Instead of using [NuGet](https://www.nuget.org/) for dependency management we use [paket](https://fsprojects.github.io/Paket/). Additionally, for convenience, we include an example build using mono on [Travis CI](https://travis-ci.org/). 
 
 ## Build Status on Master Branch
