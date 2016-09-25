@@ -22,8 +22,9 @@ This repository is a fork of the [minimal cake project](https://github.com/cake-
 Using paket with cake is fairly simple as long as you
 
 1. Don't forget to include cake in your paket.dependencies file.
-2. Don't include aliases in your build.cake file. They go in your paket.dependencies file.
-3. Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository.
+2. Don't include tool aliases in your build.cake file. They go in your paket.dependencies file.
+3. Don't include addin aliases in your build.cake file. Use reference aliases instead.
+4. Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository.
 
 ### Don't forget to include cake in your paket.dependencies file
 
@@ -36,7 +37,7 @@ source https://nuget.org/api/v2
 nuget Cake
 ```
 
-### Don't include aliases in your build.cake file. They go in your paket.dependencies file.
+### Don't include tool aliases in your build.cake file. They go in your paket.dependencies file
 
 This is a natural step if you're familiar with paket. As an example, we'll start with a build.cake file that does **not** use paket.
 
@@ -73,9 +74,66 @@ Task("Run-Unit-Tests").IsDependentOn("Build").Does(() =>
 });
 ```
 
-where we removed the alias from the *build.cake* script
+where we removed the alias from the *build.cake* script.
 
-### Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository.
+### Don't include addin aliases in your build.cake file. Use reference aliases instead
+
+The addin alias downloads the addin from NuGet and adds a reference. Since we're using paket, we only need to add a reference. We'll continue with the build.cake file above that does **not** use paket and add the [Figlet](http://cakebuild.net/dsl/figlet) addin.
+
+*build.cake*
+```csharp
+#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
+#addin "Cake.Figlet"
+
+...
+
+Setup(tool => 
+{
+    Information(Figlet("Cake.Paket.Example"));
+});
+
+...
+
+Task("Run-Unit-Tests").IsDependentOn("Build").Does(() =>
+{
+	NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings { NoResults = true });
+});
+```
+  
+If were using paket this becomes,
+  
+*paket.dependencies*
+```
+source https://nuget.org/api/v2
+
+nuget Cake
+nuget NUnit
+nuget NUnit.ConsoleRunner = 3.4.0
+nuget Cake.Figlet
+```
+
+*build.cake*
+```csharp
+#r "./packages/Cake.Figlet/lib/net45/Cake.Figlet.dll"
+
+...
+
+Setup(tool => 
+{
+    Information(Figlet("Cake.Paket.Example"));
+});
+
+...
+
+Task("Run-Unit-Tests").IsDependentOn("Build").Does(() =>
+{
+	NUnit3("./src/**/bin/" + configuration + "/*.Tests.dll", new NUnit3Settings { NoResults = true });
+});
+```
+
+where we replaced the addin alias with a reference alias in the *build.cake* script.
+
+### Don't use the bootstrapper scripts (`build.ps1` and/or `build.sh`) the cake team provides. Use the ones from this repository
 
 The cake team states [[Ref]](http://cakebuild.net/docs/tutorials/extending-the-bootstrapper), 
 
@@ -87,12 +145,12 @@ The above quote provides peace of mind for extending the scripts. In fact, the s
 2. Uses nuget.exe to download Cake.exe 
 3. Runs Cake.exe, for example `build.ps1 -Script MyBuildScript.cake -Target Default` is the same as `Cake.exe MyBuildScript.cake -Target Default`
 	
-For steps 1-2 the scripts in the repository use paket, while step 3 is the same. In addition to the command line arguments the old scripts allow, you can pass in the optional argument `-Paket` (on PowerShell) or `--paket` (on bash). This argument is used to specify the relative path to the *.paket* directory. If you don't specify anything, it looks in the same directory as the bootstrapper scripts.
+For steps 1-2 the scripts in the repository use paket, while step 3 is the same. In addition to the command line arguments the old scripts allow, you can pass in the optional arguments: `-Cake`, `-Paket` (on PowerShell) or `--cake`, `--paket` (on bash). These arguments specify the relative paths to *Cake.exe* and  *.paket*. If you don't specify anything, the scripts look in *./packages/Cake/Cake.exe* and *./.paket*.
 
 ### Configuration Values
 This section is for users who what a deeper understanding of how the modified bootstrapper scripts work.
 
-If you look in the boostrapper scripts you'll see the environment variables: *CAKE_PATHS_TOOLS* and *CAKE_PATHS_ADDINS*. These specify the paths to the tools and addins directory so cake can locate the dependencies. There are a few alternatives to using environment variables
+If you look in the boostrapper scripts you'll see the environment variable *CAKE_PATHS_TOOLS*. This specifies the path to the tools directory so cake can locate the dependencies. There are a few alternatives to using environment variables
 
 1. Specify the ToolPath in the build.cake file. As an example see [NUnit3Settings](http://cakebuild.net/api/cake.common.tools.nunit/7bd0c6da)
 2. Use a cake.config file

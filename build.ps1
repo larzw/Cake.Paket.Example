@@ -20,6 +20,8 @@ and execute your Cake build script with the parameters you provide.
 The build script to execute.
 .PARAMETER Paket
 The relative path to the .paket directory.
+.PARAMETER Cake
+The relative path to Cake.exe.
 .PARAMETER Target
 The build script target to run.
 .PARAMETER Configuration
@@ -45,6 +47,8 @@ Param(
     [string]$Script = "build.cake",
     [ValidatePattern('.paket$')]
     [string]$Paket = ".\.paket",
+    [ValidatePattern('Cake.exe$')]
+    [string]$Cake = ".\packages\Cake\Cake.exe",
     [string]$Target = "Default",
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Release",
@@ -95,8 +99,6 @@ $TOOLS_DIR = Join-Path $PaketRoot "packages"
 Write-Verbose -Message "Set the packages dependency directory PATH to $TOOLS_DIR"
 $ENV:CAKE_PATHS_TOOLS = $TOOLS_DIR
 Write-Verbose -Message "Set CAKE_PATHS_TOOLS environment variable to $ENV:CAKE_PATHS_TOOLS"
-$ENV:CAKE_PATHS_ADDINS = $TOOLS_DIR
-Write-Verbose -Message "Set CAKE_PATHS_ADDINS environment variable to $ENV:CAKE_PATHS_ADDINS"
 
 # If paket.exe does not exits then download it using paket.bootstrapper.exe
 $PAKET_EXE = Join-Path $PaketFullPath "paket.exe"
@@ -123,7 +125,7 @@ Write-Verbose -Message "Running paket.exe install"
 Invoke-Expression "$PAKET_EXE restore"
 
 # Make sure that Cake has been installed.
-$CAKE_EXE = Join-Path $TOOLS_DIR "Cake/Cake.exe"
+$CAKE_EXE = Resolve-Path $Cake
 if (!(Test-Path $CAKE_EXE)) {
     Throw "Could not find Cake.exe at $CAKE_EXE"
 }

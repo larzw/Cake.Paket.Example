@@ -11,6 +11,7 @@
 # Define default arguments.
 SCRIPT="build.cake"
 PAKET="./.paket"
+CAKE="./packages/Cake/Cake.exe"
 TARGET="Default"
 CONFIGURATION="Release"
 VERBOSITY="verbose"
@@ -22,7 +23,8 @@ SCRIPT_ARGUMENTS=()
 for i in "$@"; do
     case $1 in
         -s|--script) SCRIPT="$2"; shift ;;
-		-p|--paket) PAKET="$2"; shift ;;
+        -p|--paket) PAKET="$2"; shift ;;
+        -e|--cake) CAKE="$2"; shift ;;
         -t|--target) TARGET="$2"; shift ;;
         -c|--configuration) CONFIGURATION="$2"; shift ;;
         -v|--verbosity) VERBOSITY="$2"; shift ;;
@@ -35,7 +37,6 @@ for i in "$@"; do
 done
 
 # Define directories.
-SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PAKET_DIR=$( cd "$( dirname "$PAKET" )" && pwd )
 
 # Make sure the .paket directory exits.
@@ -48,7 +49,6 @@ fi
 # Set the path to the dependencies.
 TOOLS_DIR=$PAKET_DIR/packages
 export CAKE_PATHS_TOOLS=$TOOLS_DIR
-export CAKE_PATHS_ADDINS=$TOOLS_DIR
 
 # If paket.exe does not exits then download it using paket.bootstrapper.exe
 PAKET_EXE=$PAKET_FULL_PATH/paket.exe
@@ -74,7 +74,8 @@ fi
 mono "$PAKET_EXE" restore
 
 # Make sure that Cake has been installed.
-CAKE_EXE=$TOOLS_DIR/Cake/Cake.exe
+CAKE_DIR=$( cd "$( dirname "$CAKE" )" && pwd )
+CAKE_EXE="$CAKE_DIR/Cake.exe"
 if [ ! -f "$CAKE_EXE" ]; then
     echo "Could not find Cake.exe at '$CAKE_EXE'."
     exit 1
