@@ -169,3 +169,9 @@ This is also what the F# foundation does for [ProjectScaffold](http://fsprojects
 However, pakets [FAQ](https://fsprojects.github.io/Paket/faq.html#What-files-should-I-commit) under the heading *"What files should I commit?"* lists paket.bootstrapper.exe as a file that can be committed, but does not have to be. So, if you would rather not commit it, you can modify the cake bootstrapper scripts so they download it.
 
 My personal preference is to commit the bootstrapper because it's small and rarely changed. Furthermore, it makes collaborating easier. For example, if someone downloads your code they can run `.paket/paket.bootstrapper.exe` and then `.paket/paket.exe restore` to get all the dependencies. If the bootstrapper was not committed they would have to download it or run the build scripts.
+
+## Questions
+
+Feel free to open an issue or contact me via my Gitter chat room
+
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/larzw/Lobby)
