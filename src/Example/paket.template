@@ -1,0 +1,15 @@
+type file
+id Cake.Paket.Example
+title Cake.Paket.Example
+authors Larz White
+owners Larz White
+description Paket example for Cake.
+summary Example of how to use Paket with Cake.
+licenseUrl https://github.com/larzw/Cake.Paket.Example/blob/master/LICENSE
+projectUrl https://github.com/larzw/Cake.Paket.Example
+requireLicenseAcceptance false
+copyright Copyright (c) 2016 Larz White, Copyright (c) 2014 - 2016 Patrik Svensson, Mattias Karlsson, Gary Ewan Park and contributors
+releaseNotes Initial Release.
+tags Cake Script Build paket
+files
+	bin/Release/Example.dll ==> lib/net45

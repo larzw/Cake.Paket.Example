@@ -1,6 +1,29 @@
+framework: >= net45
 source https://nuget.org/api/v2
-
-nuget NUnit
 nuget NUnit.ConsoleRunner = 3.4.0
-nuget Cake
-nuget Cake.Figlet
+
+group testing
+    framework: >= net45
+    source https://nuget.org/api/v2
+    nuget NUnit
+
+group build/setup
+    framework: >= net45
+    source https://nuget.org/api/v2
+    nuget Cake.Figlet
+
+group tools
+    framework: >= net45
+    source https://nuget.org/api/v2
+    nuget Cake
+    nuget JetBrains.ReSharper.CommandLineTools
+
+group addins
+    framework: >= net45
+    source https://nuget.org/api/v2
+    nuget Cake.Paket
+
+group modules
+    framework: >= net45
+    source https://nuget.org/api/v2
+    nuget Cake.Paket.Module

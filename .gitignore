@@ -70,3 +70,9 @@ TestResult.xml
 
 # Paket
 .paket/paket.exe
+
+# Nuget package folder
+NuGet/
+
+# DupFinder reports
+Reports/
