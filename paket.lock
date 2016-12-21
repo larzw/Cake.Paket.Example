@@ -7,7 +7,7 @@ GROUP addins
 FRAMEWORK: >= NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    Cake.Paket (0.2.0-beta1)
+    Cake.Paket (1.0)
 
 GROUP build/setup
 FRAMEWORK: >= NET45
@@ -21,7 +21,7 @@ GROUP modules
 FRAMEWORK: >= NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    Cake.Paket.Module (0.2.0-beta1)
+    Cake.Paket.Module (1.0)
 
 GROUP testing
 FRAMEWORK: >= NET45
@@ -34,4 +34,4 @@ FRAMEWORK: >= NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     Cake (0.17)
-    JetBrains.ReSharper.CommandLineTools (2016.2.20160913.100041)
+    JetBrains.ReSharper.CommandLineTools (2016.3.20161215.134936)
